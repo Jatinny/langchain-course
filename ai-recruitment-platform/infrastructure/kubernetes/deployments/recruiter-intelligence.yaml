@@ -1,0 +1,222 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recruiter-intelligence
+  namespace: ai-recruitment
+  labels:
+    app: recruiter-intelligence
+    version: "1.0.0"
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: recruiter-intelligence
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: recruiter-intelligence
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8002"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: recruiter-intelligence-sa
+      terminationGracePeriodSeconds: 60
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 60
+              preference:
+                matchExpressions:
+                  - key: eks.amazonaws.com/capacityType
+                    operator: In
+                    values:
+                      - SPOT
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - recruiter-intelligence
+                topologyKey: kubernetes.io/hostname
+      tolerations:
+        - key: "spot-instance"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      containers:
+        - name: recruiter-intelligence
+          image: <ECR_ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/ai-recruitment/recruiter-intelligence:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8002
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "384Mi"
+            limits:
+              cpu: "1500m"
+              memory: "1.5Gi"
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: SERVICE_NAME
+              value: "recruiter-intelligence"
+            - name: PORT
+              value: "8002"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: url
+            - name: MONGODB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: url
+            - name: ROCKETREACH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: integration-secrets
+                  key: rocketreach_api_key
+            - name: LINKEDIN_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: integration-secrets
+                  key: linkedin_client_id
+            - name: LINKEDIN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: integration-secrets
+                  key: linkedin_client_secret
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: openai_api_key
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 18
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: recruiter-intelligence-sa
+  namespace: ai-recruitment
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/ai-recruitment-recruiter-intelligence-role
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recruiter-intelligence
+  namespace: ai-recruitment
+  labels:
+    app: recruiter-intelligence
+spec:
+  type: ClusterIP
+  selector:
+    app: recruiter-intelligence
+  ports:
+    - name: http
+      port: 8002
+      targetPort: 8002
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: recruiter-intelligence-hpa
+  namespace: ai-recruitment
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: recruiter-intelligence
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 65
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60

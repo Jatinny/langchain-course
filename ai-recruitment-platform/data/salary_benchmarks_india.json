@@ -1,0 +1,101 @@
+{
+  "currency": "INR",
+  "unit": "annual_ctc",
+  "last_updated": "2025-Q1",
+  "source": "composite_market_data",
+  "roles": {
+    "Java Developer": {
+      "0-2": { "min": 400000, "median": 600000, "max": 900000, "cities": {
+        "Bangalore": { "min": 500000, "median": 700000, "max": 1000000 },
+        "Hyderabad": { "min": 450000, "median": 650000, "max": 900000 },
+        "Pune": { "min": 450000, "median": 620000, "max": 880000 },
+        "NCR": { "min": 480000, "median": 660000, "max": 950000 }
+      }},
+      "3-5": { "min": 900000, "median": 1400000, "max": 2000000, "cities": {
+        "Bangalore": { "min": 1000000, "median": 1600000, "max": 2200000 },
+        "Hyderabad": { "min": 900000, "median": 1400000, "max": 2000000 }
+      }},
+      "6-9": { "min": 1800000, "median": 2500000, "max": 3800000, "cities": {
+        "Bangalore": { "min": 2000000, "median": 2800000, "max": 4200000 }
+      }},
+      "10+": { "min": 3500000, "median": 4800000, "max": 8000000 }
+    },
+    "Spring Boot Developer": {
+      "0-2": { "min": 450000, "median": 650000, "max": 950000 },
+      "3-5": { "min": 1000000, "median": 1600000, "max": 2400000 },
+      "6-9": { "min": 2000000, "median": 2800000, "max": 4200000 },
+      "10+": { "min": 4000000, "median": 5500000, "max": 9000000 }
+    },
+    "AI Engineer": {
+      "0-2": { "min": 600000, "median": 900000, "max": 1400000 },
+      "3-5": { "min": 1500000, "median": 2200000, "max": 3500000 },
+      "6-9": { "min": 3000000, "median": 4500000, "max": 7000000 },
+      "10+": { "min": 5000000, "median": 7500000, "max": 15000000 }
+    },
+    "Cloud Engineer": {
+      "0-2": { "min": 500000, "median": 750000, "max": 1100000 },
+      "3-5": { "min": 1200000, "median": 1800000, "max": 2800000 },
+      "6-9": { "min": 2500000, "median": 3500000, "max": 5500000 },
+      "10+": { "min": 4500000, "median": 6000000, "max": 12000000 }
+    },
+    "DevOps Engineer": {
+      "0-2": { "min": 450000, "median": 700000, "max": 1000000 },
+      "3-5": { "min": 1100000, "median": 1700000, "max": 2600000 },
+      "6-9": { "min": 2200000, "median": 3200000, "max": 5000000 },
+      "10+": { "min": 4000000, "median": 5500000, "max": 10000000 }
+    },
+    "Data Engineer": {
+      "0-2": { "min": 500000, "median": 750000, "max": 1100000 },
+      "3-5": { "min": 1200000, "median": 1900000, "max": 2900000 },
+      "6-9": { "min": 2500000, "median": 3600000, "max": 5500000 },
+      "10+": { "min": 4200000, "median": 5800000, "max": 11000000 }
+    },
+    "Full Stack Developer": {
+      "0-2": { "min": 400000, "median": 620000, "max": 900000 },
+      "3-5": { "min": 900000, "median": 1500000, "max": 2300000 },
+      "6-9": { "min": 1800000, "median": 2600000, "max": 4000000 },
+      "10+": { "min": 3200000, "median": 4500000, "max": 8000000 }
+    },
+    "QA Automation Engineer": {
+      "0-2": { "min": 350000, "median": 520000, "max": 750000 },
+      "3-5": { "min": 800000, "median": 1200000, "max": 1800000 },
+      "6-9": { "min": 1500000, "median": 2100000, "max": 3200000 },
+      "10+": { "min": 2500000, "median": 3500000, "max": 6000000 }
+    },
+    "SAP Consultant": {
+      "0-2": { "min": 450000, "median": 650000, "max": 900000 },
+      "3-5": { "min": 1000000, "median": 1600000, "max": 2500000 },
+      "6-9": { "min": 2000000, "median": 2900000, "max": 4500000 },
+      "10+": { "min": 3500000, "median": 5000000, "max": 9000000 }
+    },
+    "Salesforce Developer": {
+      "0-2": { "min": 400000, "median": 600000, "max": 900000 },
+      "3-5": { "min": 900000, "median": 1400000, "max": 2200000 },
+      "6-9": { "min": 1800000, "median": 2600000, "max": 4000000 },
+      "10+": { "min": 3200000, "median": 4500000, "max": 8000000 }
+    },
+    "Cybersecurity Engineer": {
+      "0-2": { "min": 500000, "median": 750000, "max": 1100000 },
+      "3-5": { "min": 1200000, "median": 1800000, "max": 2800000 },
+      "6-9": { "min": 2400000, "median": 3500000, "max": 5500000 },
+      "10+": { "min": 4000000, "median": 5800000, "max": 11000000 }
+    }
+  },
+  "commission_benchmarks": {
+    "permanent_placement": {
+      "standard_percentage": 8.33,
+      "range": { "min": 6.0, "max": 15.0 },
+      "notes": "Typically 1 month's salary = 8.33% of annual CTC"
+    },
+    "contract_margins": {
+      "standard_percentage": 15,
+      "range": { "min": 10, "max": 25 },
+      "notes": "Margin on contractor's billing rate"
+    },
+    "c2h_structure": {
+      "contract_phase_months": 6,
+      "conversion_fee": "1 month salary",
+      "notes": "Standard C2H in Indian market"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+version: "3.9"
+
+# Development overrides — hot reload, debug ports, lower resources
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  employer-discovery:
+    volumes:
+      - ./services/employer_discovery:/app/services/employer_discovery
+      - ./common:/app/common
+      - ./agents:/app/agents
+    command: uvicorn services.employer_discovery.main:app --host 0.0.0.0 --port 8001 --reload
+    environment:
+      DEBUG: "true"
+      LOG_LEVEL: DEBUG
+
+  recruiter-intelligence:
+    volumes:
+      - ./services/recruiter_intelligence:/app/services/recruiter_intelligence
+      - ./common:/app/common
+    command: uvicorn services.recruiter_intelligence.main:app --host 0.0.0.0 --port 8002 --reload
+    environment:
+      DEBUG: "true"
+
+  outreach-engine:
+    volumes:
+      - ./services/outreach_engine:/app/services/outreach_engine
+      - ./common:/app/common
+      - ./agents:/app/agents
+    command: uvicorn services.outreach_engine.main:app --host 0.0.0.0 --port 8003 --reload
+
+  candidate-matching:
+    volumes:
+      - ./services/candidate_matching:/app/services/candidate_matching
+      - ./common:/app/common
+      - ./agents:/app/agents
+    command: uvicorn services.candidate_matching.main:app --host 0.0.0.0 --port 8004 --reload
+
+  crm-service:
+    volumes:
+      - ./services/crm_service:/app/services/crm_service
+      - ./common:/app/common
+    command: uvicorn services.crm_service.main:app --host 0.0.0.0 --port 8005 --reload
+
+  analytics-service:
+    volumes:
+      - ./services/analytics_service:/app/services/analytics_service
+      - ./common:/app/common
+      - ./data:/app/data
+    command: uvicorn services.analytics_service.main:app --host 0.0.0.0 --port 8006 --reload
+
+  api-gateway:
+    volumes:
+      - ./services/api_gateway:/app/services/api_gateway
+      - ./common:/app/common
+    command: uvicorn services.api_gateway.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    command: npm run dev
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000

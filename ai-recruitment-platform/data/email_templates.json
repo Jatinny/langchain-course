@@ -1,0 +1,88 @@
+{
+  "templates": [
+    {
+      "id": "cold-01",
+      "name": "Cold Outreach - IT Recruiter Partnership",
+      "category": "cold_outreach",
+      "channel": "email",
+      "subject": "Staffing Partnership Opportunity - {{role}} Candidates Available | {{our_company}}",
+      "body": "Hi {{first_name}},\n\nI hope this message finds you well. I came across {{company_name}} on Naukri and noticed you're actively hiring {{role}} professionals.\n\nI'm {{sender_name}} from {{our_company}}, a specialized IT staffing firm. We have a strong bench of pre-screened {{role}} candidates with {{years}} years of experience, available for immediate joining.\n\nOur candidate highlights:\n• {{skill_1}}, {{skill_2}}, {{skill_3}} expertise\n• Currently serving notice period / immediately available\n• Open to {{work_type}} opportunities\n• Salary range: {{salary_range}}\n\nWe've successfully placed professionals at companies like {{reference_companies}} in the last 6 months.\n\nWould you be open to a 15-minute call this week to explore a potential partnership?\n\nBest regards,\n{{sender_name}}\n{{our_company}}\n{{sender_phone}}\n{{sender_linkedin}}",
+      "variables": ["first_name", "company_name", "role", "sender_name", "our_company", "years", "skill_1", "skill_2", "skill_3", "work_type", "salary_range", "reference_companies", "sender_phone", "sender_linkedin"],
+      "india_specific": true,
+      "performance_score": 0.0,
+      "usage_count": 0
+    },
+    {
+      "id": "cold-02",
+      "name": "Cold Outreach - LinkedIn InMail",
+      "category": "cold_outreach",
+      "channel": "linkedin",
+      "subject": "Java Developers Available for Immediate Placement",
+      "body": "Hi {{first_name}},\n\nI noticed {{company_name}} is hiring {{role}} talent. We specialize in placing {{role}} professionals across India's top IT companies.\n\nI have {{count}} pre-screened candidates with strong {{skill}} background ready for interviews. All have been technically vetted.\n\nOpen to a quick chat? Happy to share profiles.",
+      "variables": ["first_name", "company_name", "role", "count", "skill"],
+      "india_specific": true,
+      "performance_score": 0.0,
+      "usage_count": 0
+    },
+    {
+      "id": "partnership-01",
+      "name": "Vendor Registration Request",
+      "category": "partnership",
+      "channel": "email",
+      "subject": "Vendor Empanelment Request - {{our_company}} | Specialized IT Staffing",
+      "body": "Dear {{first_name}},\n\nI am writing to express our interest in becoming an empanelled vendor for {{company_name}}'s IT staffing requirements.\n\nAbout {{our_company}}:\n• Specialized in IT recruitment for {{domain}} roles\n• {{years_in_business}} years of recruitment experience\n• Placed {{total_placements}}+ professionals in the last year\n• Average time-to-hire: {{avg_tth}} days\n• Replacement guarantee: 90 days\n\nOur expertise covers:\n• {{role_1}}\n• {{role_2}}\n• {{role_3}}\n\nWe currently work with {{client_references}} and would be delighted to extend our services to {{company_name}}.\n\nI would appreciate the opportunity to present our capabilities. Could we schedule a brief discussion at your convenience?\n\nKind regards,\n{{sender_name}}\n{{our_company}}\n{{sender_phone}}",
+      "variables": ["first_name", "company_name", "our_company", "domain", "years_in_business", "total_placements", "avg_tth", "role_1", "role_2", "role_3", "client_references", "sender_name", "sender_phone"],
+      "india_specific": true,
+      "performance_score": 0.0,
+      "usage_count": 0
+    },
+    {
+      "id": "submission-01",
+      "name": "Candidate Profile Submission",
+      "category": "candidate_submission",
+      "channel": "email",
+      "subject": "{{role}} Profile Submission - {{candidate_name}} | {{experience}} Years | {{location}}",
+      "body": "Dear {{first_name}},\n\nPlease find below the profile of a strong {{role}} candidate for your consideration against Job Reference {{job_ref}}.\n\n--- CANDIDATE BRIEF ---\nName: {{candidate_name}}\nCurrent Role: {{current_title}} at {{current_company}}\nExperience: {{experience}} years\nLocation: {{location}}\nNotice Period: {{notice_period}}\nExpected CTC: {{expected_ctc}} LPA\n\nKey Skills: {{key_skills}}\n\nHighlights:\n• {{highlight_1}}\n• {{highlight_2}}\n• {{highlight_3}}\n\nThe candidate has been briefed on your opportunity and is actively interested.\n\nShall I schedule an interview?\n\nBest regards,\n{{sender_name}}\n{{our_company}}\n{{sender_phone}}\n\nNote: We work on a standard placement fee of {{fee_percentage}}% of annual CTC.",
+      "variables": ["first_name", "role", "candidate_name", "experience", "location", "job_ref", "current_title", "current_company", "notice_period", "expected_ctc", "key_skills", "highlight_1", "highlight_2", "highlight_3", "sender_name", "our_company", "sender_phone", "fee_percentage"],
+      "india_specific": true,
+      "performance_score": 0.0,
+      "usage_count": 0
+    },
+    {
+      "id": "followup-01",
+      "name": "Follow-up - Day 3",
+      "category": "followup",
+      "channel": "email",
+      "subject": "Re: {{original_subject}}",
+      "body": "Hi {{first_name}},\n\nJust following up on my earlier message about {{topic}}.\n\nIn case you missed it — {{brief_summary}}\n\nWould love to connect if you have 10 minutes this week.\n\nBest,\n{{sender_name}}",
+      "variables": ["first_name", "original_subject", "topic", "brief_summary", "sender_name"],
+      "india_specific": false,
+      "performance_score": 0.0,
+      "usage_count": 0
+    },
+    {
+      "id": "followup-02",
+      "name": "Follow-up - Day 7 (Final)",
+      "category": "followup",
+      "channel": "email",
+      "subject": "Last follow-up - {{role}} Staffing Partnership",
+      "body": "Hi {{first_name}},\n\nI understand you're busy — this will be my last follow-up on the {{role}} staffing opportunity.\n\nIf the timing isn't right, no worries at all. Feel free to reach out when you have an open position.\n\nI'll share one quick stat: our average placement turnaround is {{avg_days}} days for {{role}} roles.\n\nTake care,\n{{sender_name}}\n{{our_company}}\n{{sender_phone}}",
+      "variables": ["first_name", "role", "avg_days", "sender_name", "our_company", "sender_phone"],
+      "india_specific": true,
+      "performance_score": 0.0,
+      "usage_count": 0
+    },
+    {
+      "id": "whatsapp-01",
+      "name": "WhatsApp - Quick Intro",
+      "category": "cold_outreach",
+      "channel": "whatsapp",
+      "subject": null,
+      "body": "Hi {{first_name}}! I'm {{sender_name}} from {{our_company}}. We specialize in placing {{role}} professionals. I have {{count}} screened candidates available immediately. Would you like to see their profiles? 🙏",
+      "variables": ["first_name", "sender_name", "our_company", "role", "count"],
+      "india_specific": true,
+      "performance_score": 0.0,
+      "usage_count": 0
+    }
+  ]
+}

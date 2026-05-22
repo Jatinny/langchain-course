@@ -1,0 +1,201 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: [CI Pipeline]
+    types: [completed]
+    branches: [main]
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  IMAGE_TAG: ${{ github.sha }}
+  SERVICES: api-gateway employer-discovery recruiter-intelligence outreach-engine candidate-matching crm-service analytics-service
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    outputs:
+      image_tag: ${{ env.IMAGE_TAG }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push employer-discovery
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/employer_discovery/Dockerfile
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/employer-discovery:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push candidate-matching
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/candidate_matching/Dockerfile
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/candidate-matching:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+
+      - name: Build and push outreach-engine
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/outreach_engine/Dockerfile
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/outreach-engine:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+
+      - name: Build and push crm-service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/crm_service/Dockerfile
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/crm-service:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+
+      - name: Build and push analytics-service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/analytics_service/Dockerfile
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/analytics-service:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+
+      - name: Build and push api-gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/api_gateway/Dockerfile
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/api-gateway:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: frontend/Dockerfile
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/frontend:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig (staging)
+        run: aws eks update-kubeconfig --name recruitment-staging --region ${{ env.AWS_REGION }}
+
+      - name: Run DB migrations
+        run: |
+          kubectl run migration-${{ env.IMAGE_TAG }} \
+            --image=${{ env.ECR_REGISTRY }}/api-gateway:${{ env.IMAGE_TAG }} \
+            --restart=Never --rm -it \
+            --env="DATABASE_URL=${{ secrets.DATABASE_URL_STAGING }}" \
+            -- python -m alembic upgrade head
+
+      - name: Update image tags in K8s
+        run: |
+          for service in employer-discovery recruiter-intelligence outreach-engine candidate-matching crm-service analytics-service api-gateway; do
+            kubectl set image deployment/$service $service=${{ env.ECR_REGISTRY }}/$service:${{ env.IMAGE_TAG }} -n ai-recruitment
+          done
+
+      - name: Wait for rollout
+        run: |
+          for service in employer-discovery candidate-matching outreach-engine crm-service analytics-service api-gateway; do
+            kubectl rollout status deployment/$service -n ai-recruitment --timeout=5m
+          done
+
+      - name: Run smoke tests
+        run: |
+          GATEWAY_URL=$(kubectl get svc api-gateway -n ai-recruitment -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          curl -f "http://$GATEWAY_URL/health" || exit 1
+          echo "✅ Staging smoke tests passed"
+
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment:
+      name: production
+      url: https://api.recruitai.io
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig (production)
+        run: aws eks update-kubeconfig --name recruitment-prod --region ${{ env.AWS_REGION }}
+
+      - name: Run DB migrations (prod)
+        run: |
+          kubectl run migration-prod-${{ env.IMAGE_TAG }} \
+            --image=${{ env.ECR_REGISTRY }}/api-gateway:${{ env.IMAGE_TAG }} \
+            --restart=Never --rm -it \
+            --env="DATABASE_URL=${{ secrets.DATABASE_URL_PROD }}" \
+            -- python -m alembic upgrade head
+
+      - name: Rolling deploy to production
+        run: |
+          for service in employer-discovery recruiter-intelligence outreach-engine candidate-matching crm-service analytics-service api-gateway; do
+            kubectl set image deployment/$service $service=${{ env.ECR_REGISTRY }}/$service:${{ env.IMAGE_TAG }} -n ai-recruitment
+            kubectl rollout status deployment/$service -n ai-recruitment --timeout=10m
+          done
+
+      - name: Production health check
+        run: curl -f https://api.recruitai.io/health || exit 1
+
+      - name: Notify success
+        uses: slackapi/slack-github-action@v1.26.0
+        if: success()
+        with:
+          payload: |
+            {"text": "✅ Deployed ${{ env.IMAGE_TAG }} to production — ${{ github.actor }}"}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "Deployment failed — rolling back"
+          for service in employer-discovery recruiter-intelligence outreach-engine candidate-matching crm-service analytics-service api-gateway; do
+            kubectl rollout undo deployment/$service -n ai-recruitment
+          done

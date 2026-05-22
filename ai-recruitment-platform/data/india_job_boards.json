@@ -1,0 +1,199 @@
+{
+  "job_boards": [
+    {
+      "id": "naukri",
+      "name": "Naukri.com",
+      "url": "https://www.naukri.com",
+      "country": "India",
+      "focus": ["All levels", "IT", "Non-IT"],
+      "monthly_active_users": 70000000,
+      "job_volume_per_month": 500000,
+      "tier": 1,
+      "api_available": true,
+      "scraping_friendly": false,
+      "rate_limit_rpm": 5,
+      "vendor_friendly_signal_fields": ["recruiter_type", "company_type"],
+      "supported_job_types": ["permanent", "contract", "c2h", "internship"],
+      "india_regions": ["Bangalore", "Hyderabad", "Mumbai", "Delhi NCR", "Pune", "Chennai"],
+      "notes": "Primary India job board. Requires registration for full API access."
+    },
+    {
+      "id": "foundit",
+      "name": "Foundit (Monster India)",
+      "url": "https://www.foundit.in",
+      "country": "India",
+      "focus": ["IT", "Professional"],
+      "monthly_active_users": 25000000,
+      "tier": 1,
+      "api_available": false,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 10,
+      "supported_job_types": ["permanent", "contract"],
+      "notes": "Rebranded from Monster India. Good for mid-senior roles."
+    },
+    {
+      "id": "shine",
+      "name": "Shine.com",
+      "url": "https://www.shine.com",
+      "country": "India",
+      "focus": ["IT", "BFSI", "Healthcare"],
+      "monthly_active_users": 20000000,
+      "tier": 1,
+      "api_available": false,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 10,
+      "supported_job_types": ["permanent", "contract"],
+      "notes": "Strong in banking and healthcare IT sectors."
+    },
+    {
+      "id": "cutshort",
+      "name": "Cutshort.io",
+      "url": "https://cutshort.io",
+      "country": "India",
+      "focus": ["Tech", "Startups", "Product"],
+      "monthly_active_users": 3000000,
+      "tier": 2,
+      "api_available": true,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 30,
+      "supported_job_types": ["permanent", "equity"],
+      "vendor_friendly_signal_fields": ["hiring_type"],
+      "notes": "AI-powered matching. Good for product companies and startups."
+    },
+    {
+      "id": "instahyre",
+      "name": "Instahyre",
+      "url": "https://www.instahyre.com",
+      "country": "India",
+      "focus": ["Tech", "Mid-senior"],
+      "monthly_active_users": 1500000,
+      "tier": 2,
+      "api_available": false,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 15,
+      "supported_job_types": ["permanent"],
+      "notes": "AI-powered sourcing. Strong for experienced tech roles."
+    },
+    {
+      "id": "hirist",
+      "name": "Hirist.tech",
+      "url": "https://www.hirist.tech",
+      "country": "India",
+      "focus": ["IT", "Technology"],
+      "monthly_active_users": 2000000,
+      "tier": 2,
+      "api_available": false,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 15,
+      "supported_job_types": ["permanent", "contract"],
+      "notes": "IT-specific job board. Good vendor-friendly company signals."
+    },
+    {
+      "id": "timesjobs",
+      "name": "TimesJobs",
+      "url": "https://www.timesjobs.com",
+      "country": "India",
+      "focus": ["All sectors"],
+      "monthly_active_users": 15000000,
+      "tier": 1,
+      "api_available": false,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 10,
+      "notes": "Times of India group. Good for enterprise and large companies."
+    },
+    {
+      "id": "freshersworld",
+      "name": "Freshersworld",
+      "url": "https://www.freshersworld.com",
+      "country": "India",
+      "focus": ["Entry level", "Freshers"],
+      "monthly_active_users": 10000000,
+      "tier": 2,
+      "api_available": false,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 15,
+      "notes": "Best for 0-2 years experience candidates."
+    },
+    {
+      "id": "apna",
+      "name": "Apna",
+      "url": "https://apna.co",
+      "country": "India",
+      "focus": ["Blue collar", "Grey collar", "Semi-skilled"],
+      "monthly_active_users": 20000000,
+      "tier": 1,
+      "api_available": true,
+      "scraping_friendly": false,
+      "notes": "Largest platform for non-IT jobs. Also covers IT support roles."
+    },
+    {
+      "id": "wellfound",
+      "name": "Wellfound (AngelList Talent)",
+      "url": "https://wellfound.com",
+      "country": "Global",
+      "focus": ["Startups", "Tech"],
+      "monthly_active_users": 8000000,
+      "tier": 2,
+      "api_available": true,
+      "scraping_friendly": true,
+      "rate_limit_rpm": 20,
+      "notes": "Best for startup hiring. Equity compensation common."
+    },
+    {
+      "id": "iimjobs",
+      "name": "IIMJobs",
+      "url": "https://www.iimjobs.com",
+      "country": "India",
+      "focus": ["Management", "Senior roles"],
+      "monthly_active_users": 3000000,
+      "tier": 2,
+      "api_available": false,
+      "notes": "Premium platform for MBA and senior management roles."
+    },
+    {
+      "id": "linkedin_india",
+      "name": "LinkedIn India",
+      "url": "https://www.linkedin.com",
+      "country": "India",
+      "focus": ["All levels", "Professional"],
+      "monthly_active_users": 99000000,
+      "tier": 1,
+      "api_available": true,
+      "scraping_friendly": false,
+      "rate_limit_rpm": 5,
+      "notes": "Largest professional network. Best for B2B outreach and recruiter contacts."
+    }
+  ],
+  "gcc_signals": [
+    "global capability center", "gcc", "captive center", "shared services",
+    "center of excellence", "coe", "innovation center", "technology center",
+    "delivery center", "engineering center"
+  ],
+  "vendor_friendly_signals": [
+    "partner with us", "vendor empanelment", "third party hiring",
+    "staffing partner", "consulting partner", "implementation partner",
+    "we work with consultancies", "referral hiring", "placement agencies welcome",
+    "manpower consultancy", "recruiting partner"
+  ],
+  "c2h_signals": [
+    "contract to hire", "c2h", "contract-to-hire", "contract to permanent",
+    "temp to perm", "contract position with conversion possibility",
+    "6 months contract", "12 months contract"
+  ],
+  "bench_sales_companies": {
+    "description": "Companies with bench consultants available for placement",
+    "signals": [
+      "consultants on bench", "available resources", "w2 consultants",
+      "corp-to-corp", "c2c available", "visa holders available"
+    ]
+  },
+  "india_it_hubs": {
+    "Bangalore": ["Whitefield", "Electronic City", "Koramangala", "Marathahalli", "Outer Ring Road"],
+    "Hyderabad": ["Hitec City", "Gachibowli", "Kondapur", "Madhapur", "Nanakramguda"],
+    "Pune": ["Hinjewadi", "Kharadi", "Magarpatta", "Baner", "Wakad"],
+    "Chennai": ["OMR", "Sholinganallur", "Thoraipakkam", "Perungudi", "Guindy"],
+    "Delhi NCR": ["Noida Sector 62", "Gurgaon Cyber City", "Noida Expressway", "Greater Noida"],
+    "Mumbai": ["BKC", "Powai", "Malad", "Andheri", "Navi Mumbai"],
+    "Kolkata": ["Salt Lake Sector V", "Rajarhat", "New Town"]
+  }
+}

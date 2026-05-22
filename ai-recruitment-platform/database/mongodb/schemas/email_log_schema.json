@@ -1,0 +1,217 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "EmailLog",
+    "description": "Complete activity log for all outbound email/messaging events",
+    "required": ["message_id", "campaign_id", "channel", "recipient", "status", "created_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": {
+        "bsonType": "objectId"
+      },
+      "message_id": {
+        "bsonType": "string",
+        "description": "UUID from outreach_messages.id in PostgreSQL"
+      },
+      "campaign_id": {
+        "bsonType": "string",
+        "description": "UUID from outreach_campaigns.id in PostgreSQL"
+      },
+      "channel": {
+        "bsonType": "string",
+        "enum": ["email", "linkedin", "whatsapp", "sms", "telegram", "phone"]
+      },
+      "direction": {
+        "bsonType": "string",
+        "enum": ["outbound", "inbound"],
+        "description": "Whether we sent or received this message"
+      },
+      "recipient": {
+        "bsonType": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": {
+            "bsonType": "string",
+            "enum": ["employer_contact", "candidate", "recruiter"]
+          },
+          "id": {
+            "bsonType": "string",
+            "description": "UUID of the recipient in PostgreSQL"
+          },
+          "name": { "bsonType": "string" },
+          "email": { "bsonType": "string" },
+          "phone": { "bsonType": "string" },
+          "employer_name": { "bsonType": "string" }
+        }
+      },
+      "sender": {
+        "bsonType": "object",
+        "properties": {
+          "user_id": { "bsonType": "string" },
+          "name": { "bsonType": "string" },
+          "email": { "bsonType": "string" },
+          "provider_account": {
+            "bsonType": "string",
+            "description": "Which email account was used (e.g. gmail, sendgrid)"
+          }
+        }
+      },
+      "content": {
+        "bsonType": "object",
+        "properties": {
+          "subject": { "bsonType": "string" },
+          "body_text": { "bsonType": "string" },
+          "body_html": { "bsonType": "string" },
+          "template_id": { "bsonType": "string" },
+          "template_variables": { "bsonType": "object" },
+          "attachments": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "filename": { "bsonType": "string" },
+                "content_type": { "bsonType": "string" },
+                "size_bytes": { "bsonType": "int" },
+                "s3_url": { "bsonType": "string" }
+              }
+            }
+          },
+          "is_ai_generated": { "bsonType": "bool" },
+          "ai_model": { "bsonType": "string" },
+          "personalization_score": {
+            "bsonType": ["double", "null"],
+            "description": "0-1 score of how personalized this message is"
+          }
+        }
+      },
+      "provider": {
+        "bsonType": "object",
+        "description": "Email service provider details",
+        "properties": {
+          "name": {
+            "bsonType": "string",
+            "enum": ["sendgrid", "ses", "gmail", "smtp", "twilio", "meta_whatsapp", "telegram_bot"]
+          },
+          "message_id": {
+            "bsonType": "string",
+            "description": "Provider's unique message identifier"
+          },
+          "thread_id": {
+            "bsonType": "string"
+          },
+          "response_code": { "bsonType": ["int", "null"] },
+          "response_message": { "bsonType": "string" }
+        }
+      },
+      "status": {
+        "bsonType": "string",
+        "enum": ["queued", "sending", "sent", "delivered", "opened", "clicked", "replied", "bounced", "failed", "unsubscribed", "spam"]
+      },
+      "status_history": {
+        "bsonType": "array",
+        "description": "Full audit trail of status transitions",
+        "items": {
+          "bsonType": "object",
+          "required": ["status", "timestamp"],
+          "properties": {
+            "status": { "bsonType": "string" },
+            "timestamp": { "bsonType": "date" },
+            "metadata": { "bsonType": "object" }
+          }
+        }
+      },
+      "tracking": {
+        "bsonType": "object",
+        "description": "Email engagement tracking events",
+        "properties": {
+          "open_count": { "bsonType": "int" },
+          "click_count": { "bsonType": "int" },
+          "first_opened_at": { "bsonType": ["date", "null"] },
+          "last_opened_at": { "bsonType": ["date", "null"] },
+          "first_clicked_at": { "bsonType": ["date", "null"] },
+          "replied_at": { "bsonType": ["date", "null"] },
+          "unsubscribed_at": { "bsonType": ["date", "null"] },
+          "user_agent": { "bsonType": "string" },
+          "ip_address": { "bsonType": "string" },
+          "device_type": {
+            "bsonType": "string",
+            "enum": ["desktop", "mobile", "tablet", "unknown"]
+          },
+          "links_clicked": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "url": { "bsonType": "string" },
+                "clicked_at": { "bsonType": "date" },
+                "click_count": { "bsonType": "int" }
+              }
+            }
+          }
+        }
+      },
+      "reply": {
+        "bsonType": "object",
+        "description": "If a reply was received, store it here",
+        "properties": {
+          "received_at": { "bsonType": "date" },
+          "body_text": { "bsonType": "string" },
+          "sentiment": {
+            "bsonType": "string",
+            "enum": ["positive", "neutral", "negative", "unknown"]
+          },
+          "intent": {
+            "bsonType": "string",
+            "enum": ["interested", "not_interested", "request_info", "already_working", "wrong_person", "future_interest", "other"]
+          },
+          "ai_summary": { "bsonType": "string" },
+          "requires_followup": { "bsonType": "bool" },
+          "followup_date": { "bsonType": ["date", "null"] }
+        }
+      },
+      "error": {
+        "bsonType": "object",
+        "description": "Error details if sending failed",
+        "properties": {
+          "code": { "bsonType": "string" },
+          "message": { "bsonType": "string" },
+          "provider_error": { "bsonType": "string" },
+          "retryable": { "bsonType": "bool" },
+          "retry_count": { "bsonType": "int" },
+          "next_retry_at": { "bsonType": ["date", "null"] }
+        }
+      },
+      "metadata": {
+        "bsonType": "object",
+        "description": "Flexible key-value store for additional context"
+      },
+      "scheduled_at": {
+        "bsonType": ["date", "null"]
+      },
+      "sent_at": {
+        "bsonType": ["date", "null"]
+      },
+      "created_at": {
+        "bsonType": "date"
+      },
+      "updated_at": {
+        "bsonType": "date"
+      }
+    }
+  },
+  "indexes": [
+    { "key": { "message_id": 1 }, "unique": true },
+    { "key": { "campaign_id": 1, "created_at": -1 } },
+    { "key": { "recipient.id": 1, "created_at": -1 } },
+    { "key": { "status": 1, "created_at": -1 } },
+    { "key": { "channel": 1 } },
+    { "key": { "provider.message_id": 1 }, "sparse": true },
+    { "key": { "sent_at": -1 }, "sparse": true },
+    { "key": { "tracking.first_opened_at": -1 }, "sparse": true },
+    { "key": { "reply.received_at": -1 }, "sparse": true },
+    {
+      "key": { "status": 1, "scheduled_at": 1 },
+      "partialFilterExpression": { "status": "queued" }
+    }
+  ]
+}

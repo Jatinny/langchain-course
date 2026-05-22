@@ -1,0 +1,151 @@
+{
+  "title": "AI Recruitment Platform",
+  "uid": "recruitment-platform",
+  "version": 1,
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "tags": ["recruitment", "ai", "production"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Total Requests/sec",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "targets": [{
+        "expr": "sum(rate(http_requests_total[5m]))",
+        "legendFormat": "Requests/sec"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [
+            { "value": 0, "color": "green" },
+            { "value": 100, "color": "yellow" },
+            { "value": 500, "color": "red" }
+          ]}
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Error Rate",
+      "type": "stat",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "targets": [{
+        "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100",
+        "legendFormat": "Error %"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "percent",
+          "thresholds": { "steps": [
+            { "value": 0, "color": "green" },
+            { "value": 1, "color": "yellow" },
+            { "value": 5, "color": "red" }
+          ]}
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "p95 Latency",
+      "type": "stat",
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "targets": [{
+        "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+        "legendFormat": "p95"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "s",
+          "thresholds": { "steps": [
+            { "value": 0, "color": "green" },
+            { "value": 1, "color": "yellow" },
+            { "value": 2, "color": "red" }
+          ]}
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Employers Discovered Today",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "targets": [{
+        "expr": "increase(employer_discovery_total[24h])",
+        "legendFormat": "Discovered"
+      }]
+    },
+    {
+      "id": 5,
+      "title": "Placements This Month",
+      "type": "stat",
+      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
+      "targets": [{
+        "expr": "increase(placements_made_total[30d])",
+        "legendFormat": "Placements"
+      }],
+      "fieldConfig": {
+        "defaults": { "color": { "fixedColor": "green", "mode": "fixed" } }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Revenue This Month (INR)",
+      "type": "stat",
+      "gridPos": { "x": 20, "y": 0, "w": 4, "h": 4 },
+      "targets": [{
+        "expr": "increase(revenue_earned_total[30d])",
+        "legendFormat": "Revenue"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "currencyINR", "color": { "fixedColor": "purple", "mode": "fixed" } }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Request Rate by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [{
+        "expr": "sum(rate(http_requests_total[5m])) by (service)",
+        "legendFormat": "{{service}}"
+      }],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "id": 11,
+      "title": "Latency Heatmap by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))",
+          "legendFormat": "{{service}} p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))",
+          "legendFormat": "{{service}} p95"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 20,
+      "title": "Kafka Consumer Lag",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "targets": [{
+        "expr": "kafka_consumer_group_lag",
+        "legendFormat": "{{topic}} - {{consumergroup}}"
+      }]
+    },
+    {
+      "id": 21,
+      "title": "AI API Usage",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "targets": [{
+        "expr": "sum(rate(ai_requests_total[5m])) by (model, operation)",
+        "legendFormat": "{{model}} - {{operation}}"
+      }]
+    }
+  ]
+}

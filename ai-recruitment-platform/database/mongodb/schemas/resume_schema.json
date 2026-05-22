@@ -1,0 +1,290 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "Resume",
+    "description": "Parsed resume data and embeddings for candidates",
+    "required": ["candidate_id", "raw_text", "source", "uploaded_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": {
+        "bsonType": "objectId",
+        "description": "MongoDB ObjectId — maps to candidates.resume_mongo_id in PostgreSQL"
+      },
+      "candidate_id": {
+        "bsonType": "string",
+        "description": "UUID of the candidate in PostgreSQL candidates table",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "raw_text": {
+        "bsonType": "string",
+        "description": "Original extracted plain text from the resume file"
+      },
+      "file_url": {
+        "bsonType": "string",
+        "description": "S3 URL to the original resume file"
+      },
+      "file_name": {
+        "bsonType": "string"
+      },
+      "file_type": {
+        "bsonType": "string",
+        "enum": ["pdf", "docx", "doc", "txt", "rtf"]
+      },
+      "file_size_bytes": {
+        "bsonType": "int"
+      },
+      "parsed_data": {
+        "bsonType": "object",
+        "description": "Structured data extracted by AI parser",
+        "properties": {
+          "name": {
+            "bsonType": "string"
+          },
+          "email": {
+            "bsonType": "string"
+          },
+          "phone": {
+            "bsonType": "string"
+          },
+          "location": {
+            "bsonType": "string"
+          },
+          "linkedin_url": {
+            "bsonType": "string"
+          },
+          "github_url": {
+            "bsonType": "string"
+          },
+          "portfolio_url": {
+            "bsonType": "string"
+          },
+          "summary": {
+            "bsonType": "string"
+          },
+          "total_experience_years": {
+            "bsonType": ["double", "int", "null"]
+          },
+          "current_company": {
+            "bsonType": "string"
+          },
+          "current_title": {
+            "bsonType": "string"
+          },
+          "skills": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "tech_stack": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "experience": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["company", "title"],
+              "properties": {
+                "company": { "bsonType": "string" },
+                "title": { "bsonType": "string" },
+                "location": { "bsonType": "string" },
+                "start_date": { "bsonType": "string" },
+                "end_date": { "bsonType": ["string", "null"] },
+                "is_current": { "bsonType": "bool" },
+                "duration_months": { "bsonType": ["int", "null"] },
+                "description": { "bsonType": "string" },
+                "technologies": {
+                  "bsonType": "array",
+                  "items": { "bsonType": "string" }
+                },
+                "achievements": {
+                  "bsonType": "array",
+                  "items": { "bsonType": "string" }
+                }
+              }
+            }
+          },
+          "education": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["institution", "degree"],
+              "properties": {
+                "institution": { "bsonType": "string" },
+                "degree": { "bsonType": "string" },
+                "field_of_study": { "bsonType": "string" },
+                "start_year": { "bsonType": ["int", "null"] },
+                "end_year": { "bsonType": ["int", "null"] },
+                "grade": { "bsonType": "string" },
+                "is_current": { "bsonType": "bool" }
+              }
+            }
+          },
+          "projects": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "bsonType": "string" },
+                "description": { "bsonType": "string" },
+                "technologies": {
+                  "bsonType": "array",
+                  "items": { "bsonType": "string" }
+                },
+                "url": { "bsonType": "string" },
+                "start_date": { "bsonType": "string" },
+                "end_date": { "bsonType": "string" }
+              }
+            }
+          },
+          "certifications": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "bsonType": "string" },
+                "issuer": { "bsonType": "string" },
+                "issue_date": { "bsonType": "string" },
+                "expiry_date": { "bsonType": ["string", "null"] },
+                "credential_id": { "bsonType": "string" },
+                "url": { "bsonType": "string" }
+              }
+            }
+          },
+          "languages": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["language"],
+              "properties": {
+                "language": { "bsonType": "string" },
+                "proficiency": {
+                  "bsonType": "string",
+                  "enum": ["native", "fluent", "professional", "conversational", "basic"]
+                }
+              }
+            }
+          },
+          "awards": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "title": { "bsonType": "string" },
+                "issuer": { "bsonType": "string" },
+                "date": { "bsonType": "string" },
+                "description": { "bsonType": "string" }
+              }
+            }
+          },
+          "publications": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "title": { "bsonType": "string" },
+                "publisher": { "bsonType": "string" },
+                "date": { "bsonType": "string" },
+                "url": { "bsonType": "string" }
+              }
+            }
+          }
+        }
+      },
+      "embeddings": {
+        "bsonType": "object",
+        "description": "Vector embedding references for semantic search",
+        "properties": {
+          "vector_id": {
+            "bsonType": "string",
+            "description": "ID in Pinecone or other vector store"
+          },
+          "model": {
+            "bsonType": "string",
+            "description": "Embedding model used",
+            "examples": ["text-embedding-3-small", "text-embedding-ada-002"]
+          },
+          "dimensions": {
+            "bsonType": "int"
+          },
+          "generated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "ai_analysis": {
+        "bsonType": "object",
+        "description": "AI-generated insights about the candidate",
+        "properties": {
+          "summary": { "bsonType": "string" },
+          "strengths": {
+            "bsonType": "array",
+            "items": { "bsonType": "string" }
+          },
+          "gaps": {
+            "bsonType": "array",
+            "items": { "bsonType": "string" }
+          },
+          "seniority_level": {
+            "bsonType": "string",
+            "enum": ["intern", "junior", "mid", "senior", "lead", "principal", "staff", "director", "vp", "c_level"]
+          },
+          "recommended_roles": {
+            "bsonType": "array",
+            "items": { "bsonType": "string" }
+          },
+          "industry_domains": {
+            "bsonType": "array",
+            "items": { "bsonType": "string" }
+          },
+          "red_flags": {
+            "bsonType": "array",
+            "items": { "bsonType": "string" }
+          },
+          "analyzed_at": { "bsonType": "date" },
+          "model_version": { "bsonType": "string" }
+        }
+      },
+      "source": {
+        "bsonType": "string",
+        "description": "Where the resume came from",
+        "enum": ["upload", "naukri", "linkedin", "email", "whatsapp", "api", "referral", "scraped"]
+      },
+      "parse_status": {
+        "bsonType": "string",
+        "enum": ["pending", "processing", "completed", "failed"],
+        "description": "Current parsing pipeline status"
+      },
+      "parse_error": {
+        "bsonType": ["string", "null"]
+      },
+      "uploaded_at": {
+        "bsonType": "date"
+      },
+      "parsed_at": {
+        "bsonType": ["date", "null"]
+      },
+      "updated_at": {
+        "bsonType": "date"
+      },
+      "version": {
+        "bsonType": "int",
+        "description": "Optimistic concurrency version counter"
+      }
+    }
+  },
+  "indexes": [
+    { "key": { "candidate_id": 1 }, "unique": true },
+    { "key": { "parse_status": 1 } },
+    { "key": { "source": 1 } },
+    { "key": { "uploaded_at": -1 } },
+    { "key": { "parsed_data.skills": 1 } },
+    { "key": { "embeddings.vector_id": 1 }, "sparse": true },
+    { "key": { "parsed_data.email": 1 }, "sparse": true }
+  ]
+}

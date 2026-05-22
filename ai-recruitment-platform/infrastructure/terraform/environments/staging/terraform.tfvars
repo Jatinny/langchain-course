@@ -1,0 +1,12 @@
+environment         = "staging"
+aws_region          = "ap-south-1"
+project_name        = "recruitment"
+vpc_cidr            = "10.1.0.0/16"
+eks_cluster_version = "1.29"
+node_instance_types = ["t3.large"]
+node_min_size       = 1
+node_max_size       = 5
+node_desired_size   = 2
+db_instance_class   = "db.t3.medium"
+redis_node_type     = "cache.t3.micro"
+domain_name         = "staging.recruitai.io"

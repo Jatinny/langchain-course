@@ -1,0 +1,130 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: ai-recruitment
+  labels:
+    app: ai-recruitment
+    managed-by: kubectl
+data:
+  # ── Environment ────────────────────────────────────────────────────────────
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  DEBUG: "false"
+
+  # ── Service Discovery URLs (internal K8s DNS) ──────────────────────────────
+  EMPLOYER_DISCOVERY_URL: "http://employer-discovery:8001"
+  RECRUITER_INTELLIGENCE_URL: "http://recruiter-intelligence:8002"
+  OUTREACH_ENGINE_URL: "http://outreach-engine:8003"
+  CANDIDATE_MATCHING_URL: "http://candidate-matching:8004"
+  CRM_SERVICE_URL: "http://crm-service:8005"
+  ANALYTICS_SERVICE_URL: "http://analytics-service:8006"
+
+  # ── JWT ────────────────────────────────────────────────────────────────────
+  JWT_ALGORITHM: "RS256"
+  JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+  JWT_REFRESH_TOKEN_EXPIRE_DAYS: "7"
+  JWT_ISSUER: "ai-recruitment-platform"
+  JWT_AUDIENCE: "api-gateway"
+
+  # ── CORS ───────────────────────────────────────────────────────────────────
+  ALLOWED_ORIGINS: "https://app.recruitai.io,https://admin.recruitai.io"
+
+  # ── Rate Limiting ─────────────────────────────────────────────────────────
+  RATE_LIMIT_USER: "100"
+  RATE_LIMIT_WINDOW: "60"
+
+  # ── Kafka Topics ──────────────────────────────────────────────────────────
+  KAFKA_TOPIC_OUTREACH_TASKS: "outreach-tasks"
+  KAFKA_TOPIC_EMAIL_EVENTS: "email-events"
+  KAFKA_TOPIC_PLATFORM_EVENTS: "platform-events"
+  KAFKA_TOPIC_ANALYTICS_EVENTS: "analytics-events"
+  KAFKA_TOPIC_AI_RESULTS: "ai-results"
+  KAFKA_TOPIC_NOTIFICATIONS: "notifications"
+  KAFKA_CONSUMER_GROUP_OUTREACH: "outreach-engine-group"
+  KAFKA_CONSUMER_GROUP_ANALYTICS: "analytics-service-group"
+  KAFKA_CONSUMER_GROUP_CRM: "crm-service-group"
+
+  # ── Elasticsearch ─────────────────────────────────────────────────────────
+  ES_EMPLOYER_INDEX: "employers"
+  ES_CANDIDATE_INDEX: "candidates"
+  ES_JOB_INDEX: "job_postings"
+  ES_SHARD_COUNT: "3"
+  ES_REPLICA_COUNT: "1"
+
+  # ── Pinecone ──────────────────────────────────────────────────────────────
+  PINECONE_INDEX_NAME: "recruitment-embeddings"
+  PINECONE_NAMESPACE_CANDIDATES: "candidates"
+  PINECONE_NAMESPACE_JOBS: "jobs"
+  EMBEDDING_MODEL: "text-embedding-3-small"
+  EMBEDDING_DIMENSIONS: "1536"
+
+  # ── AI Models ─────────────────────────────────────────────────────────────
+  AI_MODEL_DEFAULT: "gpt-4o"
+  AI_MODEL_FAST: "gpt-4o-mini"
+  AI_MODEL_CLAUDE: "claude-3-5-sonnet-20241022"
+  AI_TEMPERATURE: "0.3"
+  AI_MAX_TOKENS: "2048"
+  AI_TIMEOUT_SECONDS: "30"
+
+  # ── Outreach settings ─────────────────────────────────────────────────────
+  OUTREACH_MAX_DAILY_EMAILS: "500"
+  OUTREACH_MAX_DAILY_WHATSAPP: "200"
+  OUTREACH_BATCH_SIZE: "50"
+  OUTREACH_RETRY_ATTEMPTS: "3"
+  OUTREACH_RETRY_DELAY_SECONDS: "300"
+  EMAIL_PROVIDER: "sendgrid"
+  EMAIL_FROM_NAME: "RecruitAI Platform"
+  EMAIL_FROM_ADDRESS: "outreach@recruitai.io"
+  EMAIL_REPLY_TO: "replies@recruitai.io"
+
+  # ── Candidate matching ────────────────────────────────────────────────────
+  MATCH_SCORE_THRESHOLD: "0.6"
+  MATCH_MAX_RESULTS: "50"
+  MATCH_VECTOR_WEIGHT: "0.4"
+  MATCH_KEYWORD_WEIGHT: "0.3"
+  MATCH_EXPERIENCE_WEIGHT: "0.2"
+  MATCH_LOCATION_WEIGHT: "0.1"
+
+  # ── File storage (S3) ─────────────────────────────────────────────────────
+  AWS_REGION: "ap-south-1"
+  S3_BUCKET_RESUMES: "ai-recruitment-resumes-prod"
+  S3_BUCKET_BACKUPS: "ai-recruitment-backups-prod"
+  S3_PRESIGNED_URL_EXPIRY: "3600"
+
+  # ── Cache TTLs (seconds) ──────────────────────────────────────────────────
+  CACHE_TTL_EMPLOYER: "3600"
+  CACHE_TTL_JOB: "1800"
+  CACHE_TTL_CANDIDATE: "3600"
+  CACHE_TTL_ANALYTICS: "300"
+  CACHE_TTL_SKILLS: "86400"
+
+  # ── Feature Flags ─────────────────────────────────────────────────────────
+  FEATURE_AI_PERSONALIZATION: "true"
+  FEATURE_AUTO_FOLLOWUP: "true"
+  FEATURE_WHATSAPP_OUTREACH: "true"
+  FEATURE_LINKEDIN_OUTREACH: "false"
+  FEATURE_BULK_IMPORT: "true"
+  FEATURE_RESUME_PARSING: "true"
+  FEATURE_SEMANTIC_SEARCH: "true"
+  FEATURE_ANALYTICS_DASHBOARD: "true"
+
+  # ── Pagination ────────────────────────────────────────────────────────────
+  DEFAULT_PAGE_SIZE: "20"
+  MAX_PAGE_SIZE: "100"
+
+  # ── Health check ──────────────────────────────────────────────────────────
+  HEALTH_CHECK_TIMEOUT: "5"
+
+  # ── Indian job boards ─────────────────────────────────────────────────────
+  NAUKRI_SCRAPE_ENABLED: "true"
+  LINKEDIN_INDIA_SCRAPE_ENABLED: "true"
+  INSTAHYRE_ENABLED: "true"
+  HIRIST_ENABLED: "true"
+  SCRAPE_INTERVAL_MINUTES: "60"
+
+  # ── Commission settings ───────────────────────────────────────────────────
+  DEFAULT_COMMISSION_RATE: "0.0833"   # 8.33% = 1 month CTC
+  COMMISSION_PAYMENT_TERMS: "30_days"
+  INVOICE_PREFIX: "INV-RECRUIT"

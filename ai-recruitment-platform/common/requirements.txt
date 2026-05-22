@@ -1,0 +1,52 @@
+# Core
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# Database
+sqlalchemy[asyncio]==2.0.30
+asyncpg==0.29.0
+alembic==1.13.1
+motor==3.4.0
+
+# Cache & Messaging
+redis==5.0.4
+kafka-python==2.0.2
+aioredis==2.0.1
+
+# AI / LLM
+langchain==0.2.1
+langchain-openai==0.1.7
+langchain-anthropic==0.1.13
+langchain-community==0.2.1
+langgraph==0.1.1
+openai==1.29.0
+anthropic==0.28.0
+tiktoken==0.7.0
+
+# Vector Search
+pinecone-client==3.2.2
+
+# Embeddings & ML
+numpy==1.26.4
+scikit-learn==1.5.0
+
+# HTTP
+httpx==0.27.0
+aiohttp==3.9.5
+
+# Security
+python-jose[cryptography]==3.3.0
+bcrypt==4.1.3
+passlib==1.7.4
+
+# Observability
+structlog==24.1.0
+sentry-sdk[fastapi]==2.1.1
+prometheus-client==0.20.0
+
+# Utilities
+python-dotenv==1.0.1
+python-multipart==0.0.9
+boto3==1.34.106
