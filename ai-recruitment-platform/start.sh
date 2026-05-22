@@ -1,117 +1,89 @@
 #!/bin/bash
 set -e
 
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
+# ── Create .env ───────────────────────────────────────────────────────────────
+cat > .env << 'EOF'
+ENVIRONMENT=development
+DEBUG=false
+LOG_LEVEL=INFO
 
-log()  { echo -e "${BLUE}[•]${NC} $1"; }
-ok()   { echo -e "${GREEN}[✓]${NC} $1"; }
-warn() { echo -e "${YELLOW}[!]${NC} $1"; }
-fail() { echo -e "${RED}[✗]${NC} $1"; exit 1; }
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=
+
+DATABASE_URL=postgresql+asyncpg://recruitment:recruitment@postgresql:5432/recruitment
+MONGODB_URL=mongodb://mongodb:27017
+REDIS_URL=redis://redis:6379
+KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+ELASTICSEARCH_URL=http://elasticsearch:9200
+
+PINECONE_API_KEY=
+PINECONE_ENVIRONMENT=us-east-1-aws
+
+APOLLO_API_KEY=
+HUNTER_API_KEY=
+CLEARBIT_API_KEY=
+ROCKETREACH_API_KEY=
+
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=
+
+GMAIL_CLIENT_ID=
+GMAIL_CLIENT_SECRET=
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=
+SMTP_PASSWORD=
+FROM_EMAIL=noreply@recruitai.io
+FROM_NAME=RecruitAI
+
+WHATSAPP_API_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+
+JWT_SECRET_KEY=recruitment-platform-super-secret-jwt-key-change-in-prod
+JWT_ALGORITHM=HS256
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=ap-south-1
+S3_BUCKET_RESUMES=recruitment-resumes-dev
+
+SENTRY_DSN=
+DATADOG_API_KEY=
+
+ENABLE_WHATSAPP_OUTREACH=false
+ENABLE_LINKEDIN_AUTOMATION=false
+ENABLE_AUTO_FOLLOWUP=true
+ENABLE_MARKET_INTELLIGENCE=true
+EOF
+
+echo "⚠️  Add your OPENAI_API_KEY to .env for AI features (optional — platform runs without it)"
+
+# ── Start all services ────────────────────────────────────────────────────────
+echo "🚀 Starting platform..."
+docker compose up -d --build
+
+# ── Wait for PostgreSQL ───────────────────────────────────────────────────────
+echo "⏳ Waiting for PostgreSQL..."
+until docker compose exec -T postgresql pg_isready -U recruitment &>/dev/null; do sleep 2; done
+
+# ── Init DB + seed ────────────────────────────────────────────────────────────
+echo "🗄️  Initialising database..."
+docker compose exec -T api-gateway python scripts/init_db.py 2>/dev/null || true
+
+echo "🌱 Seeding demo data..."
+docker compose exec -T api-gateway python scripts/seed_data.py 2>/dev/null || true
+
+# ── Wait for frontend ─────────────────────────────────────────────────────────
+echo "⏳ Waiting for frontend..."
+until curl -sf http://localhost:3000 &>/dev/null; do sleep 3; done
 
 echo ""
-echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║   AI Recruitment Platform — Startup    ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
+echo "✅ Platform is live!"
+echo "   → http://localhost:3000"
+echo "   → Login: admin@recruitai.io / Admin@123"
 echo ""
-
-# ── 1. Check Docker ──────────────────────────────────────────────────────────
-log "Checking Docker..."
-command -v docker &>/dev/null || fail "Docker not found. Install from https://docker.com"
-docker info &>/dev/null       || fail "Docker daemon not running. Start Docker Desktop."
-ok "Docker is running"
-
-# ── 2. Set up .env ───────────────────────────────────────────────────────────
-if [ ! -f ".env" ]; then
-  log "Creating .env from .env.example..."
-  cp .env.example .env
-  warn ".env created. Add your OPENAI_API_KEY to .env for AI features."
-  warn "Edit .env now? (Press Enter to skip, Ctrl+C to edit first)"
-  read -r
-fi
-
-# Warn if OPENAI_API_KEY is missing or placeholder
-if grep -qE "^OPENAI_API_KEY=(sk-\.\.\.|)$" .env 2>/dev/null; then
-  warn "OPENAI_API_KEY not set — AI features (matching, outreach generation) will be disabled."
-fi
-ok ".env ready"
-
-# ── 3. Pull & start all services ─────────────────────────────────────────────
-log "Starting all services (first run pulls Docker images — may take 5 min)..."
-docker compose up -d --build 2>&1 | grep -E "(Pulling|Building|Started|Running|Error)" || true
-ok "Containers started"
-
-# ── 4. Wait for PostgreSQL ────────────────────────────────────────────────────
-log "Waiting for PostgreSQL to be ready..."
-for i in $(seq 1 30); do
-  if docker compose exec -T postgresql pg_isready -U recruitment &>/dev/null; then
-    ok "PostgreSQL ready"
-    break
-  fi
-  [ "$i" -eq 30 ] && fail "PostgreSQL did not become ready in time"
-  sleep 2
-done
-
-# ── 5. Wait for API Gateway ───────────────────────────────────────────────────
-log "Waiting for API Gateway (port 8000)..."
-for i in $(seq 1 30); do
-  if curl -sf http://localhost:8000/health &>/dev/null; then
-    ok "API Gateway ready"
-    break
-  fi
-  [ "$i" -eq 30 ] && { warn "API Gateway slow to start — skipping health check"; break; }
-  sleep 3
-done
-
-# ── 6. Init DB + seed data ────────────────────────────────────────────────────
-log "Initialising database schema..."
-docker compose exec -T api-gateway python /app/scripts/init_db.py 2>/dev/null \
-  || docker run --rm --network ai-recruitment-platform_data-net \
-       -e DATABASE_URL=postgresql+asyncpg://recruitment:recruitment@postgresql:5432/recruitment \
-       -v "$(pwd)/scripts:/scripts" \
-       -v "$(pwd)/database:/database" \
-       -v "$(pwd)/data:/data" \
-       -v "$(pwd)/common:/common" \
-       python:3.11-slim bash -c "pip install -q sqlalchemy asyncpg aiofiles bcrypt passlib python-jose 2>/dev/null; python /scripts/init_db.py" 2>/dev/null \
-  || warn "DB init skipped (may already be initialised)"
-ok "Database schema ready"
-
-log "Seeding demo data (20 employers, 10 candidates)..."
-docker compose exec -T api-gateway python /app/scripts/seed_data.py 2>/dev/null \
-  || warn "Seed skipped (data may already exist)"
-ok "Demo data loaded"
-
-# ── 7. Wait for frontend ──────────────────────────────────────────────────────
-log "Waiting for frontend (port 3000)..."
-for i in $(seq 1 40); do
-  if curl -sf http://localhost:3000 &>/dev/null; then
-    ok "Frontend ready"
-    break
-  fi
-  [ "$i" -eq 40 ] && { warn "Frontend still starting — open http://localhost:3000 manually"; break; }
-  sleep 3
-done
-
-# ── 8. Done ───────────────────────────────────────────────────────────────────
-echo ""
-echo -e "${GREEN}╔════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║         Platform is LIVE! 🚀           ║${NC}"
-echo -e "${GREEN}╚════════════════════════════════════════╝${NC}"
-echo ""
-echo -e "  ${BLUE}Dashboard:${NC}  http://localhost:3000"
-echo -e "  ${BLUE}API:${NC}        http://localhost:8000/docs"
-echo -e "  ${BLUE}Login:${NC}      admin@recruitai.io / Admin@123"
-echo ""
-echo -e "  ${YELLOW}Stop:${NC}  docker compose down"
-echo -e "  ${YELLOW}Logs:${NC}  docker compose logs -f"
-echo ""
-
-# Open browser automatically
-if command -v xdg-open &>/dev/null; then
-  xdg-open http://localhost:3000 &
-elif command -v open &>/dev/null; then
-  open http://localhost:3000 &
-fi
+echo "   Stop: docker compose down"
